@@ -1,18 +1,18 @@
 package main
 
 import (
+	"CarRemoteTCP/server/car"
 	"fmt"
-	"time"
 	"net"
+	"os"
 	"strconv"
 	"strings"
-	"CarRemoteTCP/server/car"
-	"os"
+	"time"
 )
 
 func main() {
 	port := "5001"
-	if len(os.Args) > 1{
+	if len(os.Args) > 1 {
 		_, err := strconv.Atoi(os.Args[1])
 		if err != nil {
 			fmt.Println("Error, Usage: ./server [port #], setting default port", port)
@@ -21,20 +21,18 @@ func main() {
 		}
 	}
 
-	theCar := car.Car{ 0,  0, time.Now() }
+	theCar := car.Car{0, 0, time.Now()}
 	go updateSpeedTask(&theCar)
 
 	//Initialize TCP server
 	initServer(&theCar, port)
 }
 
-
 func updateSpeedTask(theCar *car.Car) {
 	for {
 		theCar.GetSpeed()
 	}
 }
-
 
 func initServer(theCar *car.Car, port string) {
 	ln, err := net.Listen("tcp", ":"+port)
@@ -77,9 +75,8 @@ func handleConnection(conn net.Conn, theCar *car.Car) {
 	//Format and send car's speed
 	speed := theCar.GetSpeed()
 	s64 := strconv.FormatFloat(speed, 'E', 10, 64)
-	fmt.Println("Current car speed",  s64, "pedal", theCar.Pedal)
-	conn.Write( append([]byte(s64), '\n') )	
+	fmt.Println("Current car speed", s64, "pedal", theCar.Pedal)
+	conn.Write(append([]byte(s64), '\n'))
 	conn.Close()
-
 
 }
